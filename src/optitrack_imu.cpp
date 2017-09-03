@@ -58,4 +58,10 @@
         ROS_ERROR_STREAM_NAMED(NODE_NAME, "no IMU found. \"" << full_publish_topic << "\" will not be published");
     }
 }
+
+OptitrackIMU::~OptitrackIMU()
+{
+    ROS_DEBUG_STREAM_NAMED(NODE_NAME, "destroying OptitrackIMU class");
+}
+
 }
