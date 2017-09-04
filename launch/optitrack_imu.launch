@@ -1,0 +1,24 @@
+<launch>
+    <master auto="start"/>
+
+    <!-- set logging level -->
+    <!-- env name="ROSCONSOLE_CONFIG_FILE" value="$(find optitrack_imu)/launch/custom_rosconsole.conf"/-->
+
+    <!--  add static transform publisher  -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="optitrack_link" args="0 0 0 0 0 0 /map /optitrack 100"/> -->
+
+    <!-- start optitrack -->
+    <arg name="optitrack" default="true"/>
+    <group if="$(arg optitrack)">
+        <include file="$(find optitrack_imu)/launch/optitrack.launch">
+            <arg name="mcast" value="$(arg mcast)" />
+        </include>
+    </group>
+
+    <!--  start optitrack_imu  -->
+    <!--  <param name="topic_base" type="str" value="/optitrack/bodies/imu"/>  -->
+    <!--  <param name="optitrack_frame_id" type="str" value="optitrack"/>  -->
+    <arg name="publish_rate" default="100"/>
+    <param name="publish_rate" type="int" value="$(arg publish_rate)"/>
+    <node pkg="optitrack_imu" type="optitrack_imu_node" name="optitrack_imu_node" output="screen" required="true"/>
+</launch>
