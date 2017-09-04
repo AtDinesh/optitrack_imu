@@ -1,18 +1,10 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(optitrack_imu)
 
+SET(CMAKE_CXX_FLAGS "-std=c++0x")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
-
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  message_generation
-)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -47,6 +39,18 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
+set(ROS_DEPS
+roscpp
+tf
+)
+## set of packages whose message types this package use
+set(MSG_DEP_SET
+geometry_msgs
+std_msgs
+visualization_msgs
+#  optitrack
+)
+
 set(MSG_FILES
 # these messages are copied from optitrack_genom, because optitrack_genom is built as a dry package
 or_pose_estimator_state.msg
@@ -57,6 +61,15 @@ or_t3d_pos.msg
 or_t3d_vel_cov.msg
 or_t3d_vel.msg
 or_time_ts.msg
+)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  ${ROS_DEPS}
+  ${MSG_DEP_SET}
 )
 
 ## add message, service and action files
@@ -84,10 +97,10 @@ add_message_files(DIRECTORY msg FILES ${MSG_FILES})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   ${MSG_DEP_SET}
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -118,11 +131,24 @@ add_message_files(DIRECTORY msg FILES ${MSG_FILES})
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+
+SET(ROBOTPKG_BASE "$ENV{ROBOTPKG_BASE}")
+if (ROBOTPKG_BASE)
+  message( STATUS "ROBOTPKG_BASE installed in" ${ROBOTPKG_BASE})
+else()
+  message( WARNING "ROBOTPKG_BASE is undefined")
+endif()
+
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES optitrack_imu
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  INCLUDE_DIRS 
+    include
+    ${ROBOTPKG_BASE}/include
+  #LIBRARIES optitrack_imu
+  CATKIN_DEPENDS 
+    ${ROS_DEPS} 
+    ${MSG_DEP_SET}
+    message_runtime
+  #DEPENDS system_lib
 )
 
 ###########
@@ -131,11 +157,14 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+include_directories(include)
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${ROBOTPKG_BASE}/include
 )
 
+#set(HEADER_FILES $ENV{ROBOTPPKG_BASE}/include/or_pose_estimator_state.h)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/optitrack_imu.cpp
@@ -149,7 +178,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/optitrack_imuRight_node.cpp)
+add_executable(${PROJECT_NAME}_node src/optitrack_imu_node.cpp ${HEADER_FILES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -159,12 +188,13 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+  #add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_node optitrack_imu_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
@@ -181,18 +211,17 @@ include_directories(
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}_node
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-#   FILES_MATCHING PATTERN "*.h"
-#   PATTERN ".svn" EXCLUDE
-# )
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
