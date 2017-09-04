@@ -1,0 +1,9 @@
+<launch>
+    <master auto="start"/>
+
+    <!-- start receive_optitrack -->
+    <arg name="mcast" default="255.255.255.255" />
+    <node pkg="optitrack_imu" type="receive_optitrack.sh"
+        args="$(find optitrack_imu)/scripts/connect_optitrack.tcl $(arg mcast)"
+        name="receive_optitrack" output="screen" required="true"/>
+</launch>
