@@ -25,7 +25,7 @@
 #include <ros/ros.h>
 #include <tf/tf.h>
 
-#include <optitrack_imuRight/or_pose_estimator_state.h>
+#include <optitrack/or_pose_estimator_state.h>
 
 class OptitrackIMU
 {
@@ -43,7 +43,6 @@ class OptitrackIMU
 
     std::vector<ros::Subscriber> subs;          // imu subscribers for optitrack
     ros::Publisher pub;                         // publisher of built message
-    ros::Publisher marker_pub;
 
     ros::Timer publishTimer;                    // timer for periodic publishing of built message
     int publish_rate_;
@@ -53,21 +52,24 @@ class OptitrackIMU
     ros::master::V_TopicInfo topics;
     double dt; //delta time
 
-    typedef std::map<int, optitrack_imu::or_pose_estimator_state::ConstPtr> RawPose;
+    typedef optitrack::or_pose_estimator_state::ConstPtr RawPose;
 
     std::map<int, RawPose> raw_messages;
-    std::map<int, geometry_msg::TransformStamped> lastStates;
+    std::map<int, geometry_msgs::TransformStamped> lastStates;
 
     uint64_t _track_id;
 
     //helper functions
-    void registerPose(geometry_msg::TransformStamped &body,
-                    optitrack_imu::or_pose_estimator_state::ConstPtr msg);
+    void registerPose(geometry_msgs::TransformStamped &body,
+                    optitrack::or_pose_estimator_state::ConstPtr msg);
     
-    //void publishIMUs(const ros::TimerEvent& event);
+    void publishIMUs(const ros::TimerEvent& event);
+    
+    // function definitions
+    bool getSubTopics(ros::master::V_TopicInfo& topics, const std::string& topic_base);
     
     bool subscribeToTopics(std::string topic_base);
 
-    void imu_callback(const optitrack_imu::or_pose_estimator_state::ConstPtr& msg, id);
+    void imu_callback(const optitrack::or_pose_estimator_state::ConstPtr& msg, const int id);
 };
 
