@@ -33,7 +33,7 @@ class OptitrackIMU
     // constructor and destructor definitions
     OptitrackIMU(ros::NodeHandle& nh, std::string& topic_base,
                     std::string& publish_topic, std::string& optitrack_frame_id, int publish_rate);
-                    
+
     ~OptitrackIMU();
 
     private:
@@ -46,18 +46,14 @@ class OptitrackIMU
 
     ros::Timer publishTimer;                    // timer for periodic publishing of built message
     int publish_rate_;
-    bool publish_markers_;
 
     // helper variables
     ros::master::V_TopicInfo topics;
-    double dt; //delta time
 
     typedef optitrack::or_pose_estimator_state::ConstPtr RawPose;
 
     std::map<int, RawPose> raw_messages;
     std::map<int, geometry_msgs::TransformStamped> lastStates;
-
-    uint64_t _track_id;
 
     //helper functions
     void registerPose(geometry_msgs::TransformStamped &body,
