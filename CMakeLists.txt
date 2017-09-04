@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -58,7 +59,7 @@ or_t3d_vel.msg
 or_time_ts.msg
 )
 
-## add message, serviece and action files
+## add message, service and action files
 add_message_files(DIRECTORY msg FILES ${MSG_FILES})
 
 ## Generate messages in the 'msg' folder
