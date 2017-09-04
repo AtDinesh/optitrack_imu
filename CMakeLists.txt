@@ -224,6 +224,21 @@ install(DIRECTORY include/${PROJECT_NAME}/
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
+
+install(PROGRAMS
+  scripts/receive_optitrack.sh
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+install(FILES
+  scripts/connect_optitrack.tcl
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/scripts
+)
+
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
 # install(FILES
 #   # myfile1
 #   # myfile2
