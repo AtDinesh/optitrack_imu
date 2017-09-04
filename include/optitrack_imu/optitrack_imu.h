@@ -41,7 +41,7 @@ class OptitrackIMU
     std::string subscribe_topic_base_, publish_topic_;    // strings for topic configuration
     std::string optitrack_frame_id_;
 
-    std::vector<ros::Subscriber> subs;          // person subscribers for optitrack
+    std::vector<ros::Subscriber> subs;          // imu subscribers for optitrack
     ros::Publisher pub;                         // publisher of built message
     ros::Publisher marker_pub;
 
@@ -56,24 +56,18 @@ class OptitrackIMU
     typedef std::map<int, optitrack_imu::or_pose_estimator_state::ConstPtr> RawPose;
 
     std::map<int, RawPose> raw_messages;
-    std::map<int, RawPose> last_raw_messages;
+    std::map<int, geometry_msg::TransformStamped> lastStates;
 
     uint64_t _track_id;
 
     //helper functions
-    /*void registerPose(geometry_msg::TransformStamped &body,
+    void registerPose(geometry_msg::TransformStamped &body,
                     optitrack_imu::or_pose_estimator_state::ConstPtr msg);
-    void processDeltaTime(const int id,
-                          const int segment_type,
-                          optitrack_imu::or_pose_estimator_state::ConstPtr msg);
-
-    // function definitions
-    bool getSubTopics(ros::master::V_TopicInfo& topics, const std::string& topic_base);
-
+    
+    //void publishIMUs(const ros::TimerEvent& event);
+    
     bool subscribeToTopics(std::string topic_base);
-    void publishIMUs(const ros::TimerEvent& event);
 
-    void imu_callback(const optitrack_imu::or_pose_estimator_state::ConstPtr& msg,
-                         const int id,
-                         const int segment_name);*/
+    void imu_callback(const optitrack_imu::or_pose_estimator_state::ConstPtr& msg, id);
 };
+

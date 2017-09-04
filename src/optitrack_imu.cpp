@@ -64,4 +64,96 @@ OptitrackIMU::~OptitrackIMU()
     ROS_DEBUG_STREAM_NAMED(NODE_NAME, "destroying OptitrackIMU class");
 }
 
+bool OptitrackIMU::subscribeToTopics(std::string topic_base)
+{
+    bool result = false;
+
+    // get all topics from master
+    if (ros::master::getTopics(topics))
+    {
+        // create subscriber for each topic
+        for (auto topic : topics)
+        {   
+            int id = -1;
+            std::string topic_name = topic.name.substr(topic.name.find("IMU"),topic.name.length());
+            std::cout << topic_name << std::endl;
+            sscanf(topic_name.c_str(),"imu_%d",&id);
+            if ((id != -1) && !topic_name.empty())
+            {
+                subs.push_back(nh_.subscribe<optitrack_imu::or_pose_estimator_state>(topic.name, 1, boost::bind(&OptitrackIMU::imu_callback, this, _1, id)));
+                ROS_DEBUG_STREAM_NAMED(NODE_NAME, "created subscriber for topic: " << topic.name);
+                result = true;
+            }
+        }
+    }
+    else
+    {
+        ROS_ERROR_STREAM_NAMED(NODE_NAME, "cannot get topic list from the master");
+    }
+
+    return result;
+}
+
+// callback for the optitrack imu
+void OptitrackIMU::imu_callback(const optitrack_imu::or_pose_estimator_state::ConstPtr& id, )
+{
+    if (msg->pos.size() != 0)
+    {
+        // update the map of pointers with latest pointer
+        raw_messages[id] = msg;
+        ROS_DEBUG_STREAM_NAMED(NODE_NAME, "found IMU " << id);
+    }
+}
+
+void OptitrackPerson::registerPose(geometry_msg::TransformStamped &trackedIMU, optitrack_person::or_pose_estimator_state::ConstPtr msg)
+{
+    trackedIMU.header.stamp.sec = msg->ts.sec;
+    trackedIMU.header.stamp.nsec = msg->ts.nsec;
+    
+    trackedIMU.translation.x = msg->pos[0].x;
+    trackedIMU.translation.y = msg->pos[0].y;
+    trackedIMU.translation.z = msg->pos[0].z;
+    trackedIMU.rotation.x = msg->pos[0].qx;
+    trackedIMU.rotation.y = msg->pos[0].qy;
+    trackedIMU.rotation.z = msg->pos[0].qz;
+    trackedIMU.rotation.w = msg->pos[0].qw;
+}
+
+void OptitrackPerson::publishIMUs(const ros::TimerEvent& event)
+{
+    // create TransformSamped message
+    geometry_msg::TransformStamped trackedIMU;
+
+    // loop through all messages in raw_messages map
+    for (auto imu : raw_messages)
+    {
+        geometry_msg::TransformStamped poseIMU;
+
+            // check if the pointer is not null
+            if (imu)
+            {
+                // TODO : implement here a low pass filter
+
+                // put optitrack data in TransformStamped
+                registerPose(trackedIMU,imu);
+                lastStates[id] = trackedIMU;
+            }
+    }
+    // add the header
+    trackedIMU.header.frame_id = optitrack_frame_id_;
+
+    // publish the trackedIMU message
+    pub.publish(trackedIMU);
+
+    ROS_DEBUG_STREAM_NAMED(NODE_NAME, "published imu");
+}
+
+// handler for something to do before killing the node
+void sigintHandler(int sig){
+    ROS_DEBUG_STREAM_NAMED(NODE_NAME, "node will now shutdown");
+    // the default sigint handler, it calls shutdown() on node
+    ros::shutdown();
+    exit(sig); // necessary to interrupt during optitrackPerson initialisation
+}
+
 }
