@@ -14,12 +14,12 @@
  *
  *                                  Dinesh Atchuthan on Aug 31 2017
  */
-
+ #include <signal.h>
  #include <optitrack_imu/optitrack_imu.h>
 
  // instantiate local variables
  OptitrackIMU::OptitrackIMU(ros::NodeHandle& nh, std::string& subscribe_topic_base,std::string& publish_topic, std::string& optitrack_frame_id,
-                            int publish_rate, bool publish_markers) :
+                            int publish_rate) :
                             nh_(nh), subscribe_topic_base_(subscribe_topic_base), publish_topic_(publish_topic), optitrack_frame_id_(optitrack_frame_id),
                             publish_rate_(publish_rate)
 {
@@ -180,5 +180,27 @@ void sigintHandler(int sig){
 // the main method starts a rosnode and initializes the optitrack_imu class
 int main(int argc, char **argv)
 {
+    // starting the optitrack_person node
+    ros::init(argc, argv, NODE_NAME);
+    ros::NodeHandle nh;
+    ROS_DEBUG_STREAM_NAMED(NODE_NAME, "started " << NODE_NAME << " node");
+
+    // getting topic parameters
+    std::string subscribe_topic_base, publish_topic_name, optitrack_frame_id;
+    int publish_rate;
+    nh.param<std::string>("topic_base", subscribe_topic_base, SUBSCRIBE_TOPIC_BASE);
+    nh.param<std::string>("published_topic", publish_topic_name, PUBLISH_TOPIC_NAME);
+    nh.param<std::string>("optitrack_frame_id", optitrack_frame_id, OPTITRACK_FRAME);
+    nh.param<int>("publish_rate", publish_rate, PUBLISH_RATE);
+
+    // look for sigint
+    signal(SIGINT, sigintHandler);
+    
+    // initializing OptitrackPerson class and passing the node handle to it
+    OptitrackIMU optitrackIMU(nh, subscribe_topic_base, publish_topic_name, optitrack_frame_id, publish_rate);
+    
+    //start spinning the node
+    ros::spin();
+
     return 0;
 }

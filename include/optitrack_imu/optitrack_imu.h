@@ -32,8 +32,8 @@ class OptitrackIMU
     public:
     // constructor and destructor definitions
     OptitrackIMU(ros::NodeHandle& nh, std::string& topic_base,
-                    std::string& publish_topic, std::string& optitrack_frame_id, int publish_rate,
-                    bool publish_markers);
+                    std::string& publish_topic, std::string& optitrack_frame_id, int publish_rate);
+                    
     ~OptitrackIMU();
 
     private:
