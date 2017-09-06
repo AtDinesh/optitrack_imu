@@ -17,7 +17,7 @@
 
  // defining constants
 #define NODE_NAME "optitrack_imuPose"
-#define SUBSCRIBE_TOPIC_BASE "/optitrack/optitrack_imu"
+#define SUBSCRIBE_TOPIC_BASE "/optitrack/bodies"
 #define PUBLISH_TOPIC_NAME "imu_pose"
 #define OPTITRACK_FRAME "optitrack"
 #define PUBLISH_RATE 200
