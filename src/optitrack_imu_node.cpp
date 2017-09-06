@@ -77,15 +77,18 @@ bool OptitrackIMU::subscribeToTopics(std::string topic_base)
             for (auto topic : topics)
             {   
                 int id = -1;
-                std::string topic_name = topic.name.substr(topic.name.find("IMU"),topic.name.length());
-                std::cout << topic_name << std::endl;
-                sscanf(topic_name.c_str(),"imu_%d",&id);
-                if ((id != -1) && !topic_name.empty())
-                {
-                    subs.push_back(nh_.subscribe<optitrack::or_pose_estimator_state>(topic.name, 1, boost::bind(&OptitrackIMU::imu_callback, this, _1, id)));
-                    ROS_DEBUG_STREAM_NAMED(NODE_NAME, "created subscriber for topic: " << topic.name);
-                    result = true;
-                }
+                try{
+                    std::string topic_name = topic.name.substr(topic.name.find("imu"),topic.name.length());
+                    std::cout << topic_name << std::endl;
+                    sscanf(topic_name.c_str(),"imu_%d",&id);
+
+                    if ((id != -1) && (!topic_name.empty()))
+                    {
+                        subs.push_back(nh_.subscribe<optitrack::or_pose_estimator_state>(topic.name, 1, boost::bind(&OptitrackIMU::imu_callback, this, _1, id)));
+                        ROS_INFO_STREAM_NAMED(NODE_NAME, "created subscriber for topic: " << topic.name);
+                        result = true;
+                    }
+                }catch (...){}
             }
         }
     }
