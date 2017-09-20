@@ -20,7 +20,7 @@
 #define SUBSCRIBE_TOPIC_BASE "/optitrack/bodies"
 #define PUBLISH_TOPIC_NAME "imu_pose"
 #define OPTITRACK_FRAME "optitrack"
-#define PUBLISH_RATE 200
+#define PUBLISH_RATE 120
 
 #include <ros/ros.h>
 #include <tf/tf.h>
