@@ -44,6 +44,10 @@ optitrack::connect {host marey host_port 1510 mcast 239.192.168.30 mcast_port 15
 ```
 
 Make sur motive is broadcasting datas and that the mcast is the good one. 
-
+then in a last terminal, change directory in your catkin workspace and run :
+```
+source devel/setup.bash
+roslaunch optitrack_imu optitrack_imu.launch mcast:=239.192.168.30
+```
 ## Troubleshooting
 
